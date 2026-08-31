@@ -1,11 +1,20 @@
 import express from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = 4000;
 
+// Enable CORS for frontend requests
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
+
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ status: 'ok', message: 'Backend is running!' });
 });
 
 app.listen(PORT, () => {
