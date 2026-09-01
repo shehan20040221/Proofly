@@ -2,8 +2,14 @@ import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../lib/prisma.js';
+import {requireAuth} from '../middleware/auth.middleware.js';
 
 const router = Router();
+
+router.get('/me', requireAuth, async (req, res) => {
+  //req.user is available here - TypeScript knows this because of the declare in global block
+  res.json({userId:req.user!.userId, role:req.user!.role});
+});
 
 router.post('/register', async (req, res) => {
   try {
