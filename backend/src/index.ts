@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
 import cookieParser from 'cookie-parser';
+import projectsRoutes from './routes/projects.routes.js';
 
 
 dotenv.config();
@@ -17,7 +18,8 @@ app.use(cors({
 }));
 
 app.use(express.json()); 
-app.use(cookieParser());   // add this near your other app.use() calls
+app.use(cookieParser()); 
+app.use('/api/projects', projectsRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Backend is running!' });
