@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
 import cookieParser from 'cookie-parser';
 import projectsRoutes from './routes/projects.routes.js';
-
+import filesRoutes from './routes/files.routes.js';
 
 dotenv.config();
 
@@ -17,6 +17,7 @@ app.use(cors({
   credentials: true
 }));
 
+app.use('/api/files', filesRoutes);
 app.use(express.json()); 
 app.use(cookieParser()); 
 app.use('/api/projects', projectsRoutes);
