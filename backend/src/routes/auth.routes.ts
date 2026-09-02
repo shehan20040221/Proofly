@@ -7,8 +7,11 @@ import {requireAuth} from '../middleware/auth.middleware.js';
 const router = Router();
 
 router.get('/me', requireAuth, async (req, res) => {
-  //req.user is available here - TypeScript knows this because of the declare in global block
-  res.json({userId:req.user!.userId, role:req.user!.role});
+  const user = await prisma.user.findUnique({
+    where: { id: req.user!.userId },
+    select: { id: true, email: true, name: true, role: true },
+  });
+  res.json({ user });
 });
 
 router.post('/register', async (req, res) => {
@@ -49,8 +52,15 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    // Set the token as an httpOnly cookie instead of just returning it
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // only HTTPS in production
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days, in milliseconds
+    });
+
     res.json({
-      token,
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
     });
   } catch (err) {
@@ -59,4 +69,10 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.post('/logout', (req, res) => {
+  res.clearCookie('token');
+  res.json({ message: 'Logged out' });
+});
+
 export default router;
+
