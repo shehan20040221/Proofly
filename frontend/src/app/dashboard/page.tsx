@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
+import NotificationBell from '@/components/NotificationBell';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -41,11 +42,14 @@ export default function DashboardPage() {
           <p className="text-zinc-600">Role: {user.role}</p>
         </div>
 
-        {user.role === 'DESIGNER' && (
-          <Link href="/projects/new" className="bg-black text-white px-4 py-2 rounded">
-            + New Project
-          </Link>
-        )}
+        <div className="flex items-center gap-3">
+          <NotificationBell />
+          {user.role === 'DESIGNER' && (
+            <Link href="/projects/new" className="bg-black text-white px-4 py-2 rounded">
+              + New Project
+            </Link>
+          )}
+        </div>
       </div>
 
       {projects.length === 0 && <p className="text-zinc-500">No projects yet.</p>}
