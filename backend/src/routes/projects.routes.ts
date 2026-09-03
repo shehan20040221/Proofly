@@ -78,4 +78,37 @@ router.patch('/:id', requireAuth, async (req, res) => {
   res.json(updated);
 });
 
+router.patch('/:id', requireAuth, async (req, res) => {
+  const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+
+  if (!project) return res.status(404).json({ error: 'Project not found' });
+
+  const { userId } = req.user!;
+  if (project.designerId !== userId && project.clientId !== userId) {
+    return res.status(403).json({ error: 'Not your project' });
+  }
+
+  const { title, description, stage } = req.body;
+
+  const updated = await prisma.project.update({
+    where: { id: req.params.id },
+    data: { title, description, stage },
+  });
+
+  // only notify if the stage actually changed
+  if (stage && stage !== project.stage) {
+    const recipientId = userId === project.designerId ? project.clientId : project.designerId;
+
+    await prisma.notification.create({
+      data: {
+        userId: recipientId,
+        projectId: project.id,
+        message: `"${project.title}" moved to ${stage}`,
+      },
+    });
+  }
+
+  res.json(updated);
+});
+
 export default router;
