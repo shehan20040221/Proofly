@@ -1,24 +1,15 @@
 {
   "compilerOptions": {
-    // File Layout
     "outDir": "./dist",
     "rootDir": "./src",
-
-    // Environment Settings
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "esnext",
     "types": ["node"],
     "lib": ["esnext"],
-
-    // Other Outputs
     "sourceMap": true,
     "declaration": false,
-
-    // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
-
-    // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
     "esModuleInterop": true,
@@ -27,5 +18,6 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true
-  }
+  },
+  "include": ["src/**/*"]
 }
