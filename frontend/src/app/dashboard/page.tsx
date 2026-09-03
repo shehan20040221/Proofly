@@ -11,22 +11,32 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [checking, setChecking] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     async function loadData() {
-      const meRes = await apiFetch('/api/auth/me');
-      if (!meRes.ok) {
-        router.push('/login');
-        return;
+      try {
+        const meRes = await apiFetch('/api/auth/me');
+        if (!meRes.ok) {
+          router.push('/login');
+          return;
+        }
+        const meData = await meRes.json();
+        setUser(meData.user);
+
+        const projectsRes = await apiFetch('/api/projects');
+        if (!projectsRes.ok) {
+          setError('Could not load your projects. Try refreshing.');
+        } else {
+          const projectsData = await projectsRes.json();
+          setProjects(projectsData);
+        }
+      } catch (err) {
+        console.error(err);
+        setError('Something went wrong loading the dashboard.');
+      } finally {
+        setChecking(false);
       }
-      const meData = await meRes.json();
-      setUser(meData.user);
-
-      const projectsRes = await apiFetch('/api/projects');
-      const projectsData = await projectsRes.json();
-      setProjects(projectsData);
-
-      setChecking(false);
     }
 
     loadData();
@@ -35,16 +45,16 @@ export default function DashboardPage() {
   if (checking) return <p className="text-center mt-20">Loading...</p>;
 
   return (
-    <div className="max-w-2xl mx-auto mt-20">
+    <div className="max-w-2xl mx-auto mt-20 px-4">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold">Welcome, {user.name}</h1>
-          <p className="text-zinc-600">Role: {user.role}</p>
+          <h1 className="text-2xl font-bold">Welcome, {user?.name}</h1>
+          <p className="text-zinc-600">Role: {user?.role}</p>
         </div>
 
         <div className="flex items-center gap-3">
           <NotificationBell />
-          {user.role === 'DESIGNER' && (
+          {user?.role === 'DESIGNER' && (
             <Link href="/projects/new" className="bg-black text-white px-4 py-2 rounded">
               + New Project
             </Link>
@@ -52,7 +62,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {projects.length === 0 && <p className="text-zinc-500">No projects yet.</p>}
+      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+
+      {!error && projects.length === 0 && (
+        <p className="text-zinc-500">No projects yet.</p>
+      )}
 
       <div className="space-y-3">
         {projects.map((project) => (
